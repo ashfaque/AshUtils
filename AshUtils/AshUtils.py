@@ -6,6 +6,7 @@ except ImportError as e:
     raise ImportError("Please install Django and djangorestframework first using 'pip install Django djangorestframework'.")
 
 
+
 '''
     Author : Ashfaque Alam
     Date : January 27, 2024
@@ -61,6 +62,7 @@ def cache_response_redis(timeout=60 * 5, key_prefix=''):    # * Default: 5 mins.
 '''
 
 
+
 '''
     Author : Ashfaque Alam
     Date : January 27, 2024
@@ -101,3 +103,79 @@ def print_db_queries(func):
 
 
 
+'''
+    Author : Ashfaque Alam
+    Date : January 27, 2024
+    Django Specific Code: Used to print the raw SQL queries running behind Django's ORM.
+    # NOQA
+'''
+
+import os
+import time
+from datetime import datetime
+from functools import wraps
+from django.db import connection
+from django.conf import settings
+from AshLogger import AshLogger
+
+# Flag to check if setup_logger has been called
+logger_setup_called = False
+
+def get_django_root():
+    return getattr(settings, 'DJANGO_ROOT', None) if hasattr(settings, 'DJANGO_ROOT') else None
+
+def setup_logger():
+    if not get_django_root():
+        raise RuntimeError("DJANGO_ROOT is not configured. Please set up DJANGO_ROOT to use the logging feature.")
+
+    global logger_setup_called
+    if not logger_setup_called:
+        db_qry_logger_obj = AshLogger(
+            file_name='db_query_logger.log',
+            file_location=os.path.join(get_django_root(), 'logs/db_query_logs'),
+            max_bytes=50000000,    # 50 MB
+            max_backups=3
+        )
+        global db_qry_logger
+        db_qry_logger = db_qry_logger_obj.setup_no_format_logger()
+        logger_setup_called = True
+        # Print a message suggesting to set up DJANGO_ROOT if it's not configured
+    
+# Call setup_logger when the module is imported
+setup_logger()
+
+def log_db_queries(func):
+    @wraps(func)
+    def wrapper(view, *args, **kwargs):
+        start_time = time.time()
+        result = func(view, *args, **kwargs)
+        end_time = time.time()
+
+        db_qry_logger.info(f"\n{'<'*120}\n")
+        
+        db_qry_logger.info(f"\nLOG START TIME: {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}\n")
+
+        db_qry_logger.info(f"\n* DB QUERIES FOR: {view.__class__.__name__} {func.__name__}:\n")
+
+        total_queries = len(connection.queries)
+        db_qry_logger.info(f"\n* TOTAL COUNT: {total_queries}\n")
+
+        for query in connection.queries:
+            query_time = query["time"]
+            sql_query = query["sql"]
+            db_qry_logger.info(f"\n* THIS QUERY TOOK: {query_time} ms: {sql_query}\n")
+
+        duration = (end_time - start_time) * 1000.0  # Convert to milliseconds
+
+        db_qry_logger.info(f"\nLOG END TIME: {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}\n")
+        db_qry_logger.info(f"\n* TOTAL TIME: {duration:.3f} ms")
+
+        db_qry_logger.info(f"\n{'>'*120}\n")
+
+        return result
+    return wrapper
+
+
+'''
+    ENDS
+'''

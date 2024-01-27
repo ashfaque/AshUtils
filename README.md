@@ -59,6 +59,22 @@ pip install AshUtils
     ```
 
 
+- @log_db_queries  is a django specific decorator, works with any method of a class based DRF view. It logs the raw SQL queries running behind Django's ORM.
+    + DJANGO_ROOT needs to be configured in settings.py, as the default log path is `DJANGO_ROOT/logs/db_query_logs.db_query_logger.log``
+    + Default log file max size is 50 MB with 3 backups after rotation.
+```python
+    # Usage:-
+
+    from AshUtils import log_db_queries
+
+    @log_db_queries
+    @sample_decorator
+    def get(self, request, *args, **kwargs):
+        response = super(__class__, self).get(self, request, args, kwargs)
+        return response
+```
+
+
 
 ## License
 [GNU GPLv3](LICENSE)
