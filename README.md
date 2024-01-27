@@ -13,21 +13,45 @@ pip install AshUtils
 - @cache_response_redis is a django specific decorator, works with get or list method of a class based DRF view. Used to cache the API response in Redis with a default timeout of 5 mins. which can be overridden.
     ```python
     # Add this in settings.py file
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": "redis://127.0.0.1:6379/1",    # Adjust this based on your Redis configuration    # "redis://username:password@127.0.0.1:6379",
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+    ENABLE_REDIS_RESPONSE_CACHING = os.getenv('ENABLE_REDIS_RESPONSE_CACHING', None)
+    if ENABLE_REDIS_RESPONSE_CACHING is not None and ENABLE_REDIS_RESPONSE_CACHING != '' and bool(int(ENABLE_REDIS_RESPONSE_CACHING)):
+        CACHES = {
+            "default": {
+                "BACKEND": "django_redis.cache.RedisCache",
+                "LOCATION": "redis://127.0.0.1:6379/1",    # Adjust this based on your Redis configuration    # "redis://username:password@127.0.0.1:6379"
+                "OPTIONS": {
+                    "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                }
             }
         }
-    }
+    else:
+        CACHES = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+                # "LOCATION": "unique-snowflake",
+            }
+        }
+
 
     # Usage:-
 
     from AshUtils import cache_response_redis
 
     @cache_response_redis(timeout=15, key_prefix='API_NAME_AS_PREFIX_USED_IN_CACHE_KEY')    # ? cache_response_redis decorator should be used only for GET API's get or list method. And it should be the top most decorator.
+    @sample_decorator
+    def get(self, request, *args, **kwargs):
+        response = super(__class__, self).get(self, request, args, kwargs)
+        return response
+    ```
+
+
+- @print_db_queries is a django specific decorator, works with any method of a class based DRF view. It prints out the raw SQL queries running behind Django's ORM.
+    ```python
+    # Usage:-
+
+    from AshUtils import print_db_queries
+
+    @print_db_queries
     @sample_decorator
     def get(self, request, *args, **kwargs):
         response = super(__class__, self).get(self, request, args, kwargs)
