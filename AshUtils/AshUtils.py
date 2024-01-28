@@ -17,10 +17,19 @@ from functools import wraps
 from django.core.cache import cache
 from rest_framework.response import Response
 
-def generate_cache_key(url, kwargs, query_params, user_id):
+def generate_cache_key(
+                    url
+                    # port
+                    # , api_path_without_query_params
+                    , kwargs
+                    , query_params
+                    , user_id
+):
     # Construct the cache key using provided information
     key_parts = [
         f'url-{url}',    # Using `-` as a secondary delimiter in the cache key.
+        # f'port-{port}',
+        # f'apipath-{api_path_without_query_params}',
         f'kwargs-{kwargs}',
         f'qparams-{query_params}',
         f'user-{user_id}',
@@ -34,12 +43,16 @@ def cache_response_redis(timeout=60 * 5, key_prefix=''):    # * Default: 5 mins.
         @wraps(view_func)
         def _wrapped_view(view, request, *args, **kwargs):
             url = request.build_absolute_uri()
+            port = request.get_port()
+            api_path_without_query_params = request.path
+            api_path_with_query_params = request.get_full_path()
             # kwargs = kwargs    # ['pk'] if 'pk' in self.kwargs else None
             # kwargs = kwargs.get('pk', {})    # This only fetches 'pk' in the kwargs.
             query_params = request.query_params.urlencode()
             user_id = request.user.id if request.user.is_authenticated else 'anonymous'
 
             cache_key = generate_cache_key(url, kwargs, query_params, user_id)
+            # cache_key = generate_cache_key(port, api_path_without_query_params, kwargs, query_params, user_id)
 
             cached_response = cache.get(cache_key)
             if cached_response:
