@@ -19,8 +19,8 @@ with open("README.md", "r") as fh:
 setup(
   name = 'AshUtils',                                                                       # How you named your package folder (MyLib)
   packages = ['AshUtils'],                                                                 # Chose the same as "name"
-  version = '0.1',                                                                         # Start with a small number and increase it with every change you make
-  download_url = 'https://github.com/ashfaque/AshUtils/archive/refs/tags/v_01.tar.gz',     # Link of your source code
+  version = '0.2',                                                                         # Start with a small number and increase it with every change you make
+  download_url = 'https://github.com/ashfaque/AshUtils/archive/refs/tags/v_02.tar.gz',     # Link of your source code
   license='GNU GPLv3',                                                                     # Chose a license from here: https://help.github.com/articles/licensing-a-repository or, https://choosealicense.com/
   description = 'Boost productivity in Django projects with a comprehensive collection of reusable utilities and decorators.',                 # Give a short description about your library
   long_description_content_type = "text/markdown",                                         # Really important if you are using README.md format.
@@ -31,8 +31,8 @@ setup(
   keywords = ['ASHFAQUE', 'ASHFAQUE ALAM', 'DJANGO', 'UTILS', 'DRF', 'DECORATORS'],        # Keywords that define your package best
   install_requires=[                                                                       # Your packages dependencies
           'django-redis'
-          # 'djangorestframework'
-          # 'Django'
+          # , 'djangorestframework'
+          # , 'Django'
           , 'AshLogger>=0.4'
           ,
       ],

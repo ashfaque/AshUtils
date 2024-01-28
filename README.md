@@ -10,7 +10,7 @@ pip install AshUtils
 
 
 ## Documentation
-- @cache_response_redis is a django specific decorator, works with get or list method of a class based DRF view. Used to cache the API response in Redis with a default timeout of 5 mins. which can be overridden.
+- @cache_response_redis is a django specific decorator, works with get or list method of a class based DRF view. Used to cache the API response in Redis with a default timeout of 5 mins. which can be overridden. Also you need to set `ENABLE_REDIS_RESPONSE_CACHING=1` in your project's .env file if you want to enable caching API response in redis using this decorator.
     ```python
     # Add this in settings.py file
     ENABLE_REDIS_RESPONSE_CACHING = os.getenv('ENABLE_REDIS_RESPONSE_CACHING', None)
@@ -40,8 +40,9 @@ pip install AshUtils
     @cache_response_redis(timeout=15, key_prefix='API_NAME_AS_PREFIX_USED_IN_CACHE_KEY')    # ? cache_response_redis decorator should be used only for GET API's get or list method. And it should be the top most decorator.
     @sample_decorator
     def get(self, request, *args, **kwargs):
-        response = super(__class__, self).get(self, request, args, kwargs)
-        return response
+        # response = super(__class__, self).get(self, request, args, kwargs)
+        # return response
+        ...
     ```
 
 
@@ -54,15 +55,16 @@ pip install AshUtils
     @print_db_queries
     @sample_decorator
     def get(self, request, *args, **kwargs):
-        response = super(__class__, self).get(self, request, args, kwargs)
-        return response
+        # response = super(__class__, self).get(self, request, args, kwargs)
+        # return response
+        ...
     ```
 
 
 - @log_db_queries  is a django specific decorator, works with any method of a class based DRF view. It logs the raw SQL queries running behind Django's ORM.
     + DJANGO_ROOT needs to be configured in settings.py, as the default log path is `DJANGO_ROOT/logs/db_query_logs.db_query_logger.log``
     + Default log file max size is 50 MB with 3 backups after rotation.
-```python
+    ```python
     # Usage:-
 
     from AshUtils import log_db_queries
@@ -70,9 +72,10 @@ pip install AshUtils
     @log_db_queries
     @sample_decorator
     def get(self, request, *args, **kwargs):
-        response = super(__class__, self).get(self, request, args, kwargs)
-        return response
-```
+        # response = super(__class__, self).get(self, request, args, kwargs)
+        # return response
+        ...
+    ```
 
 
 

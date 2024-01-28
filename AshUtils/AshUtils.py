@@ -25,6 +25,7 @@ def generate_cache_key(
                     , query_params
                     , user_id
 ):
+    # By default django-redis adds prefix :<user_id>: to the cache key. Where `:` is the default delimiter they use.
     # Construct the cache key using provided information
     key_parts = [
         f'url-{url}',    # Using `-` as a secondary delimiter in the cache key.
