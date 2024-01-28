@@ -33,7 +33,7 @@ setup(
           'django-redis'
           # 'djangorestframework'
           # 'Django'
-          'AshLogger>=0.4'
+          , 'AshLogger>=0.4'
           ,
       ],
   classifiers=[
